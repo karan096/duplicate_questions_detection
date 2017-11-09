@@ -1,122 +1,98 @@
 import pandas as pd
 import numpy as np
-import gensim
-from fuzzywuzzy import fuzz
-from nltk.corpus import stopwords
-from tqdm import tqdm
-from scipy.stats import skew, kurtosis
-from scipy.spatial.distance import cosine, cityblock, jaccard, canberra, euclidean, minkowski, braycurtis
-from nltk import word_tokenize
-
-stop_words = stopwords.words('english')
+from sklearn.cross_validation import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
 
 
-def wmd(s1, s2):
-    s1 = str(s1).lower().split()
-    s2 = str(s2).lower().split()
-    stop_words = stopwords.words('english')
-    s1 = [w for w in s1 if w not in stop_words]
-    s2 = [w for w in s2 if w not in stop_words]
-    return model.wmdistance(s1, s2)
+df= pd.read_csv("data/quora_features.csv")
+#print (df.columns)
+
+#Create a new dataFrame
+X= pd.DataFrame()
+
+#assign required columns to the data frame
+df[df.replace([np.inf, -np.inf], np.nan).notnull().all(axis=1)]  # .astype(np.float64) ?
+
+X['is_duplicate']=df['is_duplicate']
+X['len_q1']=df['len_q1']
+X['len_q2']=df['len_q2']
+X['diff_len']=df['diff_len']
+X['len_char_q1']=df['len_char_q1']
+X['len_char_q2']=df['len_char_q2']
+X['len_word_q1']=df['len_word_q1']
+X['len_word_q2']=df['len_word_q2']
+X['common_words']=df['common_words']
+
+test=pd.read_csv("data/quora_features_exp.csv")
+#test[~test.isin([np.nan, np.inf, -np.inf]).any(1)]
+
+X_test=pd.DataFrame()
+X_test['len_q1']=test['len_q1']
+X_test['len_q2']=test['len_q2']
+X_test['diff_len']=test['diff_len']
+X_test['len_char_q1']=test['len_char_q1']
+X_test['len_char_q2']=test['len_char_q2']
+X_test['len_word_q1']=test['len_word_q1']
+X_test['len_word_q2']=test['len_word_q2']
+X_test['common_words']=test['common_words']
+X_test['fuzz_qratio']=test['fuzz_qratio']
+X_test['fuzz_WRatio']=test['fuzz_WRatio']
+X_test['fuzz_partial_ratio']=test['fuzz_partial_ratio']
+X_test['fuzz_partial_token_set_ratio']=test['fuzz_partial_token_set_ratio']
+X_test['fuzz_partial_token_sort_ratio']=test['fuzz_partial_token_sort_ratio']
+# X_test['wmd']=test['wmd']
+# X_test['norm_wmd']=test['norm_wmd']
+X_test['cosine_distance']=test['cosine_distance']
+#
+X['fuzz_qratio']=df['fuzz_qratio']
+X['fuzz_WRatio']=df['fuzz_WRatio']
+X['fuzz_partial_ratio']=df['fuzz_partial_ratio']
+X['fuzz_partial_token_set_ratio']=df['fuzz_partial_token_set_ratio']
+X['fuzz_partial_token_sort_ratio']=df['fuzz_partial_token_sort_ratio']
+# X['wmd']=df['wmd']
+# X['norm_wmd']=df['norm_wmd']
+
+X['cosine_distance']=df['cosine_distance']
+# X['cityblock_distance']=df['cityblock_distance']
+# X['jaccard_distance']=df['jaccard_distance']
+# X['canberra_distance']=df['canberra_distance']
+# X['euclidean_distance']=df['euclidean_distance']
+# X['minkowski_distance']=df['minkowski_distance']
+# X['braycurtis_distance']=df['braycurtis_distance']
+# X['skew_q1vec']=df['skew_q1vec']
+# X['skew_q2vec']=df['skew_q2vec']
+# X['kur_q1vec']=df['kur_q1vec']
+# X['kur_q2vec']=df['kur_q2vec']
+
+y=X['is_duplicate']
+
+X=X.drop(['is_duplicate'],axis=1)
+X = X.as_matrix().astype(np.float)
 
 
-def norm_wmd(s1, s2):
-    s1 = str(s1).lower().split()
-    s2 = str(s2).lower().split()
-    stop_words = stopwords.words('english')
-    s1 = [w for w in s1 if w not in stop_words]
-    s2 = [w for w in s2 if w not in stop_words]
-    return norm_model.wmdistance(s1, s2)
+scaler=StandardScaler()
+X=scaler.fit_transform(X)
+X_test=scaler.fit_transform(X_test)
+
+# X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
 
 
-def sent2vec(s):
-    words = str(s).lower()
-    words = word_tokenize(words)
-    words = [w for w in words if not w in stop_words]
-    words = [w for w in words if w.isalpha()]
-    M = []
-    for w in words:
-        try:
-            M.append(model[w])
-        except:
-            continue
-    M = np.array(M)
-    v = M.sum(axis=0)
-    return np.divide(v,np.sqrt((v ** 2).sum()))
+model=LogisticRegression()
+model.fit(X,y)
+
+print(model.predict_proba(X_test))
 
 
-data = pd.read_csv('data/quora_duplicate_questions.tsv',sep=',')
-data = data.drop(['id', 'qid1', 'qid2'], axis=1)
 
 
-data['len_q1'] = data.question1.apply(lambda x: len(str(x)))
-data['len_q2'] = data.question2.apply(lambda x: len(str(x)))
-data['diff_len'] = data.len_q1 - data.len_q2
-data['len_char_q1'] = data.question1.apply(lambda x: len(''.join(set(str(x).replace(' ', '')))))
-data['len_char_q2'] = data.question2.apply(lambda x: len(''.join(set(str(x).replace(' ', '')))))
-data['len_word_q1'] = data.question1.apply(lambda x: len(str(x).split()))
-data['len_word_q2'] = data.question2.apply(lambda x: len(str(x).split()))
-data['common_words'] = data.apply(lambda x: len(set(str(x['question1']).lower().split()).intersection(set(str(x['question2']).lower().split()))), axis=1)
-data['fuzz_qratio'] = data.apply(lambda x: fuzz.QRatio(str(x['question1']), str(x['question2'])), axis=1)
-data['fuzz_WRatio'] = data.apply(lambda x: fuzz.WRatio(str(x['question1']), str(x['question2'])), axis=1)
-data['fuzz_partial_ratio'] = data.apply(lambda x: fuzz.partial_ratio(str(x['question1']), str(x['question2'])), axis=1)
-data['fuzz_partial_token_set_ratio'] = data.apply(lambda x: fuzz.partial_token_set_ratio(str(x['question1']), str(x['question2'])), axis=1)
-data['fuzz_partial_token_sort_ratio'] = data.apply(lambda x: fuzz.partial_token_sort_ratio(str(x['question1']), str(x['question2'])), axis=1)
-data['fuzz_token_set_ratio'] = data.apply(lambda x: fuzz.token_set_ratio(str(x['question1']), str(x['question2'])), axis=1)
-data['fuzz_token_sort_ratio'] = data.apply(lambda x: fuzz.token_sort_ratio(str(x['question1']), str(x['question2'])), axis=1)
 
 
-model = gensim.models.KeyedVectors.load_word2vec_format('data/GoogleNews-vectors-negative300.bin.gz', binary=True,
-                                                        limit=50000)
-data['wmd'] = data.apply(lambda x: wmd(x['question1'], x['question2']), axis=1)
 
 
-norm_model = gensim.models.KeyedVectors.load_word2vec_format('data/GoogleNews-vectors-negative300.bin.gz', binary=True,
-                                                             limit=50000)
-norm_model.init_sims(replace=True)
-data['norm_wmd'] = data.apply(lambda x: norm_wmd(x['question1'], x['question2']), axis=1)
-
-question1_vectors = np.zeros((data.shape[0], 300))
-
-for i, q in tqdm(enumerate(data.question1.values)):
-    question1_vectors[i, :] = sent2vec(q)
-
-question2_vectors  = np.zeros((data.shape[0], 300))
-
-for i, q in tqdm(enumerate(data.question2.values)):
-    question2_vectors[i, :] = sent2vec(q)
-
-question1_vectors[np.isnan(question1_vectors)]=0
-question2_vectors[np.isnan(question2_vectors)]=0
-
-data['cosine_distance'] = [cosine(x, y) for (x, y) in zip(question1_vectors,
-                                                            question2_vectors)]
-
-data['cityblock_distance'] = [cityblock(x, y) for (x, y) in zip(question1_vectors,
-                                                            question2_vectors)]
-
-data['jaccard_distance'] = [jaccard(x, y) for (x, y) in zip(question1_vectors,
-                                                            question2_vectors)]
-
-data['canberra_distance'] = [canberra(x, y) for (x, y) in zip(question1_vectors,
-                                                            question2_vectors)]
 
 
-data['euclidean_distance'] = [euclidean(x, y) for (x, y) in zip(question1_vectors,
-                                                            question2_vectors)]
 
 
-data['minkowski_distance'] = [minkowski(x, y, 3) for (x, y) in zip(question1_vectors,
-                                                            question2_vectors)]
-
-data['braycurtis_distance'] = [braycurtis(x, y) for (x, y) in zip(question1_vectors,
-                                                            question2_vectors)]
 
 
-data['skew_q1vec'] = [skew(x) for x in question1_vectors]
-data['skew_q2vec'] = [skew(x) for x in question2_vectors]
-data['kur_q1vec'] = [kurtosis(x) for x in question1_vectors]
-data['kur_q2vec'] = [kurtosis(x) for x in question2_vectors]
-
-#Saving extracted features into a csv
-data.to_csv('data/quora_features_exp.csv', index=False)
