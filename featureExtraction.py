@@ -7,6 +7,8 @@ from tqdm import tqdm
 from scipy.stats import skew, kurtosis
 from scipy.spatial.distance import cosine, cityblock, jaccard, canberra, euclidean, minkowski, braycurtis
 from nltk import word_tokenize
+import nltk, string
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 stop_words = stopwords.words('english')
 
@@ -44,6 +46,27 @@ def sent2vec(s):
     v = M.sum(axis=0)
     return np.divide(v,np.sqrt((v ** 2).sum()))
 
+def common_words(x):
+    q1, q2 = x
+    q1=q1[:-1]
+    q2=q2[:-1]
+    return len(set(str(q1).lower().split()) & set(str(q2).lower().split()))
+
+stemmer = nltk.stem.porter.PorterStemmer()
+remove_punctuation_map = dict((ord(char), None) for char in string.punctuation)
+
+def stem_tokens(tokens):
+    return [stemmer.stem(item) for item in tokens]
+
+'''remove punctuation, lowercase, stem'''
+def normalize(text):
+    return stem_tokens(nltk.word_tokenize(text.lower().translate(remove_punctuation_map)))
+
+vectorizer = TfidfVectorizer(tokenizer=normalize, stop_words='english')
+
+def cosine_sim(text1, text2):
+    tfidf = vectorizer.fit_transform([text1, text2])
+    return ((tfidf * tfidf.T).A)[0,1]
 
 data = pd.read_csv('data/quora_duplicate_questions1.tsv',sep=',')
 data = data.drop(['id', 'qid1', 'qid2'], axis=1)
@@ -56,7 +79,7 @@ data['len_char_q1'] = data.question1.apply(lambda x: len(''.join(set(str(x).repl
 data['len_char_q2'] = data.question2.apply(lambda x: len(''.join(set(str(x).replace(' ', '')))))
 data['len_word_q1'] = data.question1.apply(lambda x: len(str(x).split()))
 data['len_word_q2'] = data.question2.apply(lambda x: len(str(x).split()))
-data['common_words'] = data.apply(lambda x: len(set(str(x['question1']).lower().split()).intersection(set(str(x['question2']).lower().split()))), axis=1)
+data['common_words'] = data[['question1', 'question2']].apply(common_words, axis=1)
 data['fuzz_qratio'] = data.apply(lambda x: fuzz.QRatio(str(x['question1']), str(x['question2'])), axis=1)
 data['fuzz_WRatio'] = data.apply(lambda x: fuzz.WRatio(str(x['question1']), str(x['question2'])), axis=1)
 data['fuzz_partial_ratio'] = data.apply(lambda x: fuzz.partial_ratio(str(x['question1']), str(x['question2'])), axis=1)
@@ -117,6 +140,8 @@ data['skew_q1vec'] = [skew(x) for x in question1_vectors]
 data['skew_q2vec'] = [skew(x) for x in question2_vectors]
 data['kur_q1vec'] = [kurtosis(x) for x in question1_vectors]
 data['kur_q2vec'] = [kurtosis(x) for x in question2_vectors]
+data['cosSim'] = data.apply(lambda x: cosine_sim(x['question1'], x['question2']), axis=1)
+
 
 #Saving extracted features into a csv
 data.to_csv('data/quora_features_exp.csv', index=False)
