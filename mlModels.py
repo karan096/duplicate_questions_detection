@@ -48,19 +48,3 @@ def train_model(features,X,y):
 #calling function to train according to different features
 for i in range(1,7):
     train_model('f'+i,X,y)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

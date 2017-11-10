@@ -38,19 +38,3 @@ def predict(features,X_test):
 
 for i in range(1,7):
     predict('f'+i,X_test)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
