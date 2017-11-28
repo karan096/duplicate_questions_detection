@@ -19,7 +19,7 @@ $("#submit").click(function () {
             predictOutput.push([6, feature_list[0]['Logistic Regression'][5], feature_list[0]['XG_Boost'][5]]);
             //Create a HTML Table element.
             var table = $("<table />");
-            table[0].border = "1";
+            table.addClass("u-full-width");
 
             //Get the count of columns.
             var columnCount = predictOutput[0].length;
@@ -37,6 +37,7 @@ $("#submit").click(function () {
                 row = $(table[0].insertRow(-1));
                 for (var j = 0; j < columnCount; j++) {
                     var cell = $("<td />");
+                    cell.attr("align", "center");
                     cell.html(predictOutput[i][j]);
                     row.append(cell);
                 }
