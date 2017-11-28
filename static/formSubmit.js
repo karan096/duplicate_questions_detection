@@ -2,9 +2,16 @@
  * Created by naivedya on 26/11/17.
  */
 $("#submit").click(function () {
+    var q1 = $('#ques1').val();
+    var q2 = $('#ques2').val();
     $.ajax({
-        url: "predict", success: function (result) {
-            //alert(result);
+        url: "predict",
+        data: {
+            "ques1": q1,
+            "ques2": q2
+        },
+        type: "GET",
+        success: function (feature_list) {
             var predictOutput = new Array();
             predictOutput.push(["Feature Set", "Logisitic Regression", "XG_Boost"]);
             predictOutput.push([1, "John Hammond", "United States"]);
@@ -51,12 +58,15 @@ $("#submit").click(function () {
                     {
                         type: "bar",
                         dataPoints: [
-                            {y: 198, label: "Italy"},
-                            {y: 201, label: "China"},
-                            {y: 202, label: "France"},
-                            {y: 236, label: "Great Britain"},
-                            {y: 395, label: "Soviet Union"},
-                            {y: 857, label: "USA"}
+                            {y: parseFloat(feature_list["fuzz_qratio"]), label: "fuzz_qratio"},
+                            {y: parseFloat(feature_list["fuzz_WRatio"]), label: "fuzz_WRatio"},
+                            {y: parseFloat(feature_list["wmd"]), label: "wmd"},
+                            {y: parseFloat(feature_list["norm_wmd"]), label: "norm_wmd"},
+                            {y: parseFloat(feature_list["cosine_distance"]), label: "cosine_distance"},
+                            {y: parseFloat(feature_list["euclidean_distance"]), label: "euclidean_distance"},
+                            {y: parseFloat(feature_list["braycurtis_distance"]), label: "braycurtis_distance"},
+                            {y: parseFloat(feature_list["cosSim"]), label: "cosSim"},
+                            {y: parseFloat(feature_list["jaccard_distance"]), label: "jaccard_distance"}
                         ]
                     }
                 ]
