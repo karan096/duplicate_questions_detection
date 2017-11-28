@@ -28,7 +28,9 @@ f4=feature_columns_1+feature_columns_4
 f5=feature_columns_1+feature_columns_2+feature_columns_4
 f6=feature_columns_1+feature_columns_3+feature_columns_4
 
-def train_model(features,X,y):
+f=[f1,f2,f3,f4,f5,f6]
+
+def train_model(features,X,y,features_name):
     for column in features:
         X[column] = df[column]
         X[column].replace(np.inf, np.nan, inplace=True)
@@ -40,11 +42,11 @@ def train_model(features,X,y):
     logistic_model = LogisticRegression().fit(X,y)
     xgb_model = xgb.XGBClassifier().fit(X, y)
 
-    with open('data/logistic_model_'+features, 'wb') as fid:
+    with open('data/logistic_model_'+str(features_name), 'wb') as fid:
         pickle.dump(logistic_model, fid, 2)
-    with open('data/xgb_model_'+features, 'wb') as fid:
+    with open('data/xgb_model_'+str(features_name), 'wb') as fid:
         pickle.dump(xgb_model, fid, 2)
 
 #calling function to train according to different features
-for i in range(1,7):
-    train_model('f'+i,X,y)
+for i in range(0,6):
+    train_model(f[i],X,y,str('f')+str(i+1))

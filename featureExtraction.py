@@ -48,6 +48,8 @@ def sent2vec(s):
 
 def common_words(x):
     q1, q2 = x
+    q1=str(q1)
+    q2=str(q2)
     q1=q1[:-1]
     q2=q2[:-1]
     return len(set(str(q1).lower().split()) & set(str(q2).lower().split()))
@@ -65,11 +67,14 @@ def normalize(text):
 vectorizer = TfidfVectorizer(tokenizer=normalize, stop_words='english')
 
 def cosine_sim(text1, text2):
-    tfidf = vectorizer.fit_transform([text1, text2])
-    return ((tfidf * tfidf.T).A)[0,1]
+    try:
+        tfidf = vectorizer.fit_transform([text1, text2])
+        return ((tfidf * tfidf.T).A)[0,1]
+    except ValueError:
+        return np.NaN
 
-data = pd.read_csv('data/quora_duplicate_questions1.tsv',sep=',')
-data = data.drop(['id', 'qid1', 'qid2'], axis=1)
+data = pd.read_csv('data/quora_duplicate_questions_test.csv',sep=',')
+#data = data.drop(['test_id'], axis=1)
 
 
 data['len_q1'] = data.question1.apply(lambda x: len(str(x)))
@@ -144,4 +149,4 @@ data['cosSim'] = data.apply(lambda x: cosine_sim(x['question1'], x['question2'])
 
 
 #Saving extracted features into a csv
-data.to_csv('data/quora_features_exp.csv', index=False)
+data.to_csv('data/quora_features_test.csv', index=False)
