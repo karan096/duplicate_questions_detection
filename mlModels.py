@@ -26,7 +26,7 @@ f2=feature_columns_1+feature_columns_2
 f3=feature_columns_1+feature_columns_2+feature_columns_3
 f4=feature_columns_1+feature_columns_4
 f5=feature_columns_1+feature_columns_2+feature_columns_4
-f6=feature_columns_1+feature_columns_3+feature_columns_4
+f6=feature_columns_4
 
 f=[f1,f2,f3,f4,f5,f6]
 
@@ -47,6 +47,8 @@ def train_model(features,X,y,features_name):
     with open('data/xgb_model_'+str(features_name), 'wb') as fid:
         pickle.dump(xgb_model, fid, 2)
 
-#calling function to train according to different features
-for i in range(0,6):
-    train_model(f[i],X,y,str('f')+str(i+1))
+# #calling function to train according to different features
+# for i in range(0,6):
+#     train_model(f[i],X,y,str('f')+str(i+1))
+
+train_model(feature_columns_4,X,y,'f6')

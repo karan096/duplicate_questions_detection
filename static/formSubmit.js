@@ -1,6 +1,3 @@
-/**
- * Created by naivedya on 26/11/17.
- */
 $("#submit").click(function () {
     var q1 = $('#ques1').val();
     var q2 = $('#ques2').val();
@@ -14,12 +11,12 @@ $("#submit").click(function () {
         success: function (feature_list) {
             var predictOutput = new Array();
             predictOutput.push(["Feature Set", "Logisitic Regression", "XG_Boost"]);
-            predictOutput.push([1, "John Hammond", "United States"]);
-            predictOutput.push([2, "Mudassar Khan", "India"]);
-            predictOutput.push([3, "Suzanne Mathews", "France"]);
-            predictOutput.push([4, "Robert Schidner", "Russia"]);
-            predictOutput.push([5, "HI_hop_in", "India"]);
-            predictOutput.push([6, "JK_LOL", "China"]);
+            predictOutput.push([1, feature_list[0]['Logistic Regression'][0], feature_list[0]['XG_Boost'][0]]);
+            predictOutput.push([2, feature_list[0]['Logistic Regression'][1], feature_list[0]['XG_Boost'][1]]);
+            predictOutput.push([3, feature_list[0]['Logistic Regression'][2], feature_list[0]['XG_Boost'][2]]);
+            predictOutput.push([4, feature_list[0]['Logistic Regression'][3], feature_list[0]['XG_Boost'][3]]);
+            predictOutput.push([5, feature_list[0]['Logistic Regression'][4], feature_list[0]['XG_Boost'][4]]);
+            predictOutput.push([6, feature_list[0]['Logistic Regression'][5], feature_list[0]['XG_Boost'][5]]);
             //Create a HTML Table element.
             var table = $("<table />");
             table[0].border = "1";
@@ -58,15 +55,15 @@ $("#submit").click(function () {
                     {
                         type: "bar",
                         dataPoints: [
-                            {y: parseFloat(feature_list["fuzz_qratio"]), label: "fuzz_qratio"},
-                            {y: parseFloat(feature_list["fuzz_WRatio"]), label: "fuzz_WRatio"},
-                            {y: parseFloat(feature_list["wmd"]), label: "wmd"},
-                            {y: parseFloat(feature_list["norm_wmd"]), label: "norm_wmd"},
-                            {y: parseFloat(feature_list["cosine_distance"]), label: "cosine_distance"},
-                            {y: parseFloat(feature_list["euclidean_distance"]), label: "euclidean_distance"},
-                            {y: parseFloat(feature_list["braycurtis_distance"]), label: "braycurtis_distance"},
-                            {y: parseFloat(feature_list["cosSim"]), label: "cosSim"},
-                            {y: parseFloat(feature_list["jaccard_distance"]), label: "jaccard_distance"}
+                            {y: parseFloat(feature_list[1]["fuzz_qratio"]), label: "fuzz_qratio"},
+                            {y: parseFloat(feature_list[1]["fuzz_WRatio"]), label: "fuzz_WRatio"},
+                            {y: parseFloat(feature_list[1]["wmd"]), label: "wmd"},
+                            {y: parseFloat(feature_list[1]["norm_wmd"]), label: "norm_wmd"},
+                            {y: parseFloat(feature_list[1]["cosine_distance"]), label: "cosine_distance"},
+                            {y: parseFloat(feature_list[1]["euclidean_distance"]), label: "euclidean_distance"},
+                            {y: parseFloat(feature_list[1]["braycurtis_distance"]), label: "braycurtis_distance"},
+                            {y: parseFloat(feature_list[1]["cosSim"]), label: "cosSim"},
+                            {y: parseFloat(feature_list[1]["jaccard_distance"]), label: "jaccard_distance"}
                         ]
                     }
                 ]
