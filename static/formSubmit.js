@@ -16,7 +16,7 @@ $("#submit").click(function () {
             predictOutput.push([3, feature_list[0]['Logistic Regression'][2], feature_list[0]['XG_Boost'][2]]);
             predictOutput.push([4, feature_list[0]['Logistic Regression'][3], feature_list[0]['XG_Boost'][3]]);
             predictOutput.push([5, feature_list[0]['Logistic Regression'][4], feature_list[0]['XG_Boost'][4]]);
-            predictOutput.push([6, feature_list[0]['Logistic Regression'][5], feature_list[0]['XG_Boost'][5]]);
+//            predictOutput.push([6, feature_list[0]['Logistic Regression'][5], feature_list[0]['XG_Boost'][5]]);
             //Create a HTML Table element.
             var table = $("<table />");
             table.addClass("u-full-width");
